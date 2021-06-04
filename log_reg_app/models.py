@@ -10,6 +10,11 @@ class UserManager(models.Manager):
             errors['first_name'] = 'First name must be at least 2 characters'
         if len(post_data['last_name']) < 2:
             errors['last_name'] = 'Last name must be at least 2 characters'
+        if not email_regex.match(post_data['email']):
+            errors['email'] = "Invalid email address!"
+        else:
+            if User.objects.filter(email=post_data['email']):
+                errors['email'] = "This email already exists!"
         if post_data['birthday']:
             birthday = date.fromisoformat(post_data['birthday'])
             today_date = date.today()
@@ -34,7 +39,7 @@ class UserManager(models.Manager):
         if not email_regex.match(post_data['email']):
             errors['email'] = "Invalid email address!"
         if not post_data['password']:
-                errors['password'] = 'Password is missing!'
+            errors['password'] = 'Password is missing!'
         else:
             user = User.objects.filter(email=post_data['email'])
             if not user:
