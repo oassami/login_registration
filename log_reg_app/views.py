@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-import bcrypt
 from .models import *
+import bcrypt
 
 
 def index(request):
@@ -19,8 +19,16 @@ def user_register(request):
         for key, value in errors.items():
             messages.error(request, value)
         return redirect('/')
-    User.objects.create(first_name=request.POST['first_name'], last_name=request.POST['last_name'], email=request.POST['email'], birthday=request.POST['birthday'], password=bcrypt.hashpw(request.POST['password'].encode(), bcrypt.gensalt()).decode())
-    request.session['logged-in'] ="logged-in"
+    pw_hash = bcrypt.hashpw(request.POST['password'].encode(), bcrypt.gensalt()).decode()
+    User.objects.create(
+        first_name = request.POST['first_name'],
+        last_name = request.POST['last_name'], 
+        email = request.POST['email'], 
+        birthday = request.POST['birthday'], 
+        password = pw_hash
+    )
+    # messages.info(request, "You have created an account! Please log in...")             # This is good to have if you didn't auto logged in the user after registaring
+    request.session['logged-in'] = "logged-in"
     return redirect('/success')
 
 def user_login(request):
@@ -32,9 +40,25 @@ def user_login(request):
         for key, value in errors.items():
             messages.error(request, value)
         return redirect('/')
-    user = User.objects.get(email=request.POST['email'])
+
+    # user = User.objects.filter(email=post_data['email'])                              # This all good programming, but below is a better way of doing it with TRY and EXCEPT.
+    # if not user:
+    #     errors['user'] = 'This user does NOT exist in the database!'
+    # else:
+    #     user = User.objects.get(email=post_data['email'])
+    #     if not bcrypt.checkpw(post_data['password'].encode(), user.password.encode()):
+    #         errors['password'] = 'WRONG Password!!!'
+
+    try:
+        user = User.objects.get(email = request.POST['email'])
+        if not bcrypt.checkpw(request.POST['password'].encode(), user.password.encode()):
+            messages.error(request, 'Incorrect email address or password.')
+            return redirect('/')
+    except:
+        messages.error(request, 'Incorrect email address or password.')
+        return redirect('/')
     request.session['first_name'] = user.first_name
-    request.session['logged-in'] ="logged-in"
+    request.session['logged-in'] = "logged-in"
     return redirect('/success')
 
 def user_seccess(request):

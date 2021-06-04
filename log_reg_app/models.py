@@ -13,8 +13,13 @@ class UserManager(models.Manager):
         if not email_regex.match(post_data['email']):
             errors['email'] = "Invalid email address!"
         else:
-            if User.objects.filter(email=post_data['email']):
-                errors['email'] = "This email already exists!"
+            # if User.objects.filter(email=post_data['email']):            This is s good way of doing it.... below is another way using TRY and EXCEPT
+                # errors['email'] = "This email already exists!"
+            try:
+                self.get(email=post_data['email'])                  # try and get the record from database
+                errors['email'] = "This email already exists!"      # it found one record in database
+            except:
+                pass                                                # did not find a record which what we need, so, do nothing and continue
         if post_data['birthday']:
             birthday = date.fromisoformat(post_data['birthday'])
             today_date = date.today()
@@ -36,18 +41,10 @@ class UserManager(models.Manager):
     def loginValidation(self, post_data):
         errors = {}
         email_regex = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
-        if not email_regex.match(post_data['email']):
-            errors['email'] = "Invalid email address!"
         if not post_data['password']:
             errors['password'] = 'Password is missing!'
-        else:
-            user = User.objects.filter(email=post_data['email'])
-            if not user:
-                errors['user'] = 'This user does NOT exist in the database!'
-            else:
-                user = User.objects.get(email=post_data['email'])
-                if not bcrypt.checkpw(post_data['password'].encode(), user.password.encode()):
-                    errors['password'] = 'WRONG Password!!!'
+        if not email_regex.match(post_data['email']):
+            errors['email'] = "Invalid email address!"
         return errors
 
 class User(models.Model):
