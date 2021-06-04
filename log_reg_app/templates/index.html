@@ -25,45 +25,61 @@
             <!-- Begin of Registration Section -->
             <div class="col">
                 <h2 class="text-center mt-5">Registration</h2>
-                <form>
+                {% if request.session.action == "register" %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <p class="text-center">{{ message }}</p>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+                <form action="/user/register" method="POST">
+                    {% csrf_token %}
                     <div class="row g-5 mb-2 justify-content-md-center">
                         <div class="col-3">
-                            <label class="form-label">First Name</label>
+                            <label class="form-label">First Name*</label>
                         </div>
                         <div class="col-auto">
-                            <input type="text" class="form-control">
+                            <input type="text" class="form-control" name="first_name" value="{{request.session.first_name}}">
                         </div>
                     </div>
                     <div class="row g-5 mb-2 row justify-content-md-center">
                         <div class="col-3">
-                            <label class="form-label">Last Name</label>
+                            <label class="form-label">Last Name*</label>
                         </div>
                         <div class="col-auto">
-                            <input type="text" class="form-control">
+                            <input type="text" class="form-control" name="last_name" value="{{request.session.last_name}}">
                         </div>
                     </div>
                     <div class="row g-5 mb-2 justify-content-md-center">
                         <div class="col-3">
-                            <label class="form-label">Email</label>
+                            <label class="form-label">Email*</label>
                         </div>
                         <div class="col-auto">
-                            <input type="email" class="form-control">
+                            <input type="email" class="form-control" name="email" value="{{request.session.email}}">
+                        </div>
+                    </div>
+                    <div class="row g-5 mb-2 justify-content-md-center">
+                        <div class="col-3">
+                            <label class="form-label">Birthday*</label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="date" class="form-control" name="birthday" value="{{request.session.birthday}}">
                         </div>
                     </div>
                     <div class="row g-5 mb-2 row justify-content-md-center">
                         <div class="col-3">
-                            <label class="form-label">Password</label>
+                            <label class="form-label">Password*</label>
                         </div>
                         <div class="col-auto">
-                            <input type="password" class="form-control">
+                            <input type="password" class="form-control" name="password">
                         </div>
                     </div>
                     <div class="row g-5 mb-2 row justify-content-md-center">
                         <div class="col-3">
-                            <label class="form-label">Confirm PW</label>
+                            <label class="form-label">Confirm PW*</label>
                         </div>
                         <div class="col-auto">
-                            <input type="password" class="form-control">
+                            <input type="password" class="form-control" name="c_password">
                         </div>
                     </div>
                     <div class="d-grid gap-2 col-3 mx-auto">
@@ -76,21 +92,29 @@
             <!-- Begin of Login Section -->
             <div class="col">
                 <h2 class="text-center mt-5">Login</h2>
-                <form>
+                {% if request.session.action == "login" %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <p class="text-center">{{ message }}</p>
+                        {% endfor %}
+                    {% endif %}
+                {% endif %}
+                <form action="/user/login" method="POST">
+                    {% csrf_token %}
                     <div class="row g-5 mb-2 justify-content-md-center">
                         <div class="col-3">
-                            <label class="form-label">Email</label>
+                            <label class="form-label">Email*</label>
                         </div>
                         <div class="col-auto">
-                            <input type="email" class="form-control">
+                            <input type="email" class="form-control" name="email" value="{{request.session.login_email}}">
                         </div>
                     </div>
                     <div class="row g-5 mb-2 row justify-content-md-center">
                         <div class="col-3">
-                            <label class="form-label">Password</label>
-                        </div>
+                            <label class="form-label">Password*</label>
+                        </div> 
                         <div class="col-auto">
-                            <input type="password" class="form-control">
+                            <input type="password" class="form-control" name="password">
                         </div>
                     </div>
                     <div class="d-grid gap-2 col-3 mx-auto">
@@ -100,6 +124,9 @@
             </div>
             <!-- End of Login Section -->
         </div>
+        <br>
+        <p>all fields marked (*) are mandatory</p>
+        <a href="/clear_all">Clear all forms</a>
     </div>
 </body>
 
