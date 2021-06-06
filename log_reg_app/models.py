@@ -47,6 +47,20 @@ class UserManager(models.Manager):
             errors['email'] = "Invalid email address!"
         return errors
 
+    def resetValidation(self, post_data):
+        errors = {}
+        email_regex = re.compile(r'^[a-zA-Z0-9.+_-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]+$')
+        if not post_data['password']:
+            errors['password'] = 'Password is missing!'
+        if not email_regex.match(post_data['email']):
+            errors['email'] = "Invalid email address!"
+        if len(post_data['password']) < 8:
+            errors['password'] = 'Password must be at least 8 characters'
+        else:
+            if post_data['password'] != post_data['c_password']:
+                errors['password'] = 'Passwords do not match!'
+        return errors
+
 class User(models.Model):
     first_name = models.CharField(max_length=55)
     last_name = models.CharField(max_length=55)

@@ -74,3 +74,29 @@ def user_seccess(request):
 def clear_forms(request):
     request.session.clear()
     return redirect('/')
+
+def pw_reset(request):
+    if request.method == "POST":
+        request.session.clear()
+        errors = User.objects.resetValidation(request.POST)
+        if errors:
+            for key, value in errors.items():
+                messages.error(request, value)
+            return redirect('/user/pw_reset')
+        request.session['email'] = request.POST['email']
+        request.session['password'] = request.POST['password']
+        return redirect('/reseted')
+    return render(request, 'reset.html')
+
+def reseted(request):
+    try:
+        user = User.objects.get(email = request.session['email'])
+    except:
+        messages.error(request, 'email address not found.')
+        return redirect('/user/pw_reset')
+    pw_hash = bcrypt.hashpw(request.session['password'].encode(), bcrypt.gensalt()).decode()
+    user.password = pw_hash
+    user.save()
+    request.session['action']= 'register'
+    messages.info(request, "Reset successful...! Please log in...")  # This is good to have if you didn't auto logged in the user after registaring
+    return redirect('/')
